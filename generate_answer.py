@@ -15,7 +15,8 @@ def generate_results_list(results):
     response = '\n\n<b>Твой результат:</b>\n'
     for r in results:
         # Пробел, чтобы выглядело ровнее
-        digit = f'{ r[1] } ' if r[1] < 10 else f'{ r[1] }'
+        human_count = r[1] + 1
+        digit = f'{ human_count } ' if human_count < 10 else f'{ human_count }'
         # Обозначаем эмодзи в зависимости от ответа
         response += f'{ digit } - { EMOJI_CORRECT if r[2] > 0 else EMOJI_WRONG }\n'
     return response
