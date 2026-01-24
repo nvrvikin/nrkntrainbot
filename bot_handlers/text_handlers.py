@@ -1,33 +1,57 @@
 from aiogram import F, Router, types
 from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
 
-from callbacks import CB_CORRECT_ANSWER, CB_WRONG_ANSWER
-from db_interactions import get_quiz_index, get_resluts, get_user_nickname, get_user_state, update_quiz_index, update_quiz_results, update_user_state
-from generate_answer import generate_correct_answer, generate_wrong_answer
-from state.state import state_changed
+from data.callbacks import CB_CORRECT_ANSWER, CB_START_QUIZ, CB_WRONG_ANSWER
+from db_interactions import get_quiz_index, get_resluts, get_user_nickname, update_user_nickname, get_user_state, update_quiz_index, update_quiz_results, update_user_state
+from generate_answer import generate_correct_answer, generate_wrong_answer, show_main_menu
 from state.states import STATE_MAIN_MENU, STATE_NO_NICKNAME 
 
-from questions import quiz_data
+from data.questions import quiz_data
+from data.phrases import PHRASE_GREET
 from utils.utils import get_question, new_quiz
+
+from state.state import UserForm
 
 router = Router()
 
 # ОБРАБОТКА /start
 @router.message(Command("start"))
-async def cmd_start(message: types.Message):
+async def cmd_start(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     user_nickname = await get_user_nickname(user_id)
-    await message.answer("Здравствуйте! Здесь можно несколько раз пройти квиз из 10 вопросов. Вопросы всегда одни и те же.")
+    await message.answer(PHRASE_GREET)
     if not user_nickname:
+        await message.answer('Требуется придумать ник до 20 символов для отображения в общих результатах')
         await update_user_state(user_id, STATE_NO_NICKNAME)
-        state_changed(user_id, message)
+        await state.set_state(UserForm.no_nickname)
     if user_nickname:
         await update_user_state(user_id, STATE_MAIN_MENU)
-        state_changed(user_id, message)
+        await state.set_state(UserForm.main_menu)
+
+@router.message(UserForm.no_nickname)
+async def process_nickname(message: types.Message, state: FSMContext):
+    username = message.text.strip()
+    
+    # Валидация
+    if len(username) > 20:
+        await message.answer("Слишком длинный ник! Максимум 20 символов.")
+        return
+    if len(username) < 3:
+        await message.answer("Слишком короткий ник! Минимум 3 символа.")
+        return
+    
+    await update_user_nickname(message.from_user.id, username)
+    
+    await state.set_state(UserForm.main_menu)
+    
+    await message.answer(f"Отлично, {username}!")
+
+    await show_main_menu(message)
 
 # ОБРАБОТКА /quiz
-@router.message(F.text=="Начать игру")
-@router.message(Command("quiz"))
+@router.message(UserForm.main_menu)
+@router.callback_query(F.data == CB_START_QUIZ)
 async def cmd_quiz(message: types.Message):
     await message.answer(f"Начинаем квиз!")
     await new_quiz(message)
@@ -93,12 +117,6 @@ async def wrong_answer(callback: types.CallbackQuery):
 
 @router.message()
 async def handle_all_text_messages(message: types.Message):
-    user_id = message.from_user.id
-    current_state = await get_user_state(user_id)
-    
-    if current_state == STATE_NO_NICKNAME:
-        message.text
-        # Обработка установки username
-        pass
-    else:
-        await message.answer("Не понял ваше сообщение")
+
+    await message.answer("Не понял ваше сообщение")
+

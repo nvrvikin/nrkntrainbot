@@ -1,8 +1,7 @@
 from db_interactions import get_quiz_index, update_quiz_index, update_user_state
 from keyboards import generate_options_keyboard
-from main import get_question
 from state.states import STATE_QUIZ
-from questions import quiz_data
+from data.questions import quiz_data
 
 # Начало квиза
 async def new_quiz(message):

@@ -1,14 +1,13 @@
-from config import DB_NAME
-
 import aiosqlite
 
+from data.constatns import DB_NAME
 from generate_answer import generate_results_list
 
 # Инициализация таблиц
 async def create_table():
     async with aiosqlite.connect(DB_NAME) as db:
         # Создаем таблицы
-        await db.execute('''CREATE TABLE IF NOT EXISTS quiz_users (user_id INTEGER PRIMARY KEY, username STRING)''')
+        await db.execute('''CREATE TABLE IF NOT EXISTS quiz_users (user_id INTEGER PRIMARY KEY, nickname STRING)''')
         await db.execute('''CREATE TABLE IF NOT EXISTS quiz_state (user_id INTEGER PRIMARY KEY, question_index INTEGER)''')
         await db.execute('''CREATE TABLE IF NOT EXISTS user_state (user_id INTEGER PRIMARY KEY, user_state STRING)''')
         await db.execute('''CREATE TABLE IF NOT EXISTS quiz_results (user_id INTEGER NOT NULL, question_index INTEGER NOT NULL, answer_index INTEGER NOT NULL, PRIMARY KEY (user_id, question_index))''')
