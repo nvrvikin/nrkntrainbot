@@ -18,7 +18,7 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 # Подключаем роутер сообщений в диспетчер
-dp.include_router(text_handlers)
+dp.include_router(text_handlers.router)
 
 # Запуск процесса поллинга новых апдейтов
 async def main():
