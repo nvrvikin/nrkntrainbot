@@ -4,7 +4,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 
-from bot_handlers import text_handlers
+from bot_handlers import text_handlers.router
 from db_interactions import create_table
 
 # Получение чувствительных данных (bot api) из среды
