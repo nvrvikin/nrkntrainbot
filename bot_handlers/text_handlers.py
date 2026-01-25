@@ -15,6 +15,9 @@ from state.state import UserForm
 
 router = Router()
 
+def check_nickname(message):
+    pass
+
 # ОБРАБОТКА /start
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
