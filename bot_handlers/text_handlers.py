@@ -15,8 +15,18 @@ from state.state import UserForm
 
 router = Router()
 
-def check_nickname(message):
-    pass
+async def check_nickname(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    user_nickname = await get_user_nickname(user_id)
+    if not user_nickname:
+        await state.set_state(UserForm.no_nickname)
+        await message.answer('Требуется придумать ник до 20 символов для отображения в общих результатах')
+        return False
+    return True
+
+async def main_menu_state(message: types.Message, state: FSMContext):
+    await state.set_state(UserForm.main_menu)
+    await message.answer('Меню', reply_markup='', parse_mode='HTML')
 
 # ОБРАБОТКА /start
 @router.message(Command("start"))
@@ -24,13 +34,9 @@ async def cmd_start(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
     user_nickname = await get_user_nickname(user_id)
     await message.answer(PHRASE_GREET)
-    if not user_nickname:
-        await message.answer('Требуется придумать ник до 20 символов для отображения в общих результатах')
-        await update_user_state(user_id, STATE_NO_NICKNAME)
-        await state.set_state(UserForm.no_nickname)
-    if user_nickname:
-        await update_user_state(user_id, STATE_MAIN_MENU)
-        await state.set_state(UserForm.main_menu)
+    if not check_nickname(message, state):
+        return
+    await main_menu_state(message, state)
 
 @router.message(UserForm.no_nickname)
 async def process_nickname(message: types.Message, state: FSMContext):
