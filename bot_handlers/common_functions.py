@@ -1,7 +1,6 @@
 from aiogram.fsm.context import FSMContext
 from aiogram import F, types
 
-from bot_handlers.callback_handlers import no_nickname_state
 from db_interactions import get_user_nickname
 from generate_answer import show_main_menu
 from state.state import UserForm
