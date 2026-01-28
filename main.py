@@ -17,11 +17,12 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
-
 # Подключаем роутер сообщений в диспетчер
-dp.include_router(command_router)
-dp.include_router(callback_router)
-dp.include_router(message_router)
+dp.include_routers([
+    command_router,
+    callback_router,
+    message_router,
+])
 
 # Запуск процесса поллинга новых апдейтов
 async def main():

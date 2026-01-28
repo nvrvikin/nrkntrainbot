@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 
 from bot_handlers.common_functions import check_nickname, main_menu_state
 from data.callbacks import CB_CANCEL, CB_CORRECT_ANSWER, CB_START_QUIZ, CB_WRONG_ANSWER
-from db_interactions import get_quiz_index, get_resluts, get_user_nickname, update_user_nickname, update_quiz_index, update_quiz_results
+from db_interactions import get_quiz_index, get_resluts, get_user_nickname, update_quiz_index, update_quiz_results
 from generate_answer import generate_correct_answer, generate_wrong_answer, show_main_menu
 
 from data.questions import quiz_data
@@ -89,7 +89,7 @@ async def other_states_cancel(callback: types.CallbackQuery):
         message_id=callback.message.message_id,
         reply_markup=None
     )
-    await callback.message.answer('Отмена не поддерживается в текущем состоянии диалога')
+    await callback.answer('Отмена не поддерживается в текущем состоянии диалога', show_alert=True)
 
 # ОБРАБОТКА CB_START_QUIZ
 @router.callback_query(UserForm.main_menu, F.data == CB_START_QUIZ)
