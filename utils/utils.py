@@ -4,8 +4,7 @@ from state.states import STATE_QUIZ
 from data.questions import quiz_data
 
 # Начало квиза
-async def new_quiz(message):
-    user_id = message.from_user.id
+async def new_quiz(message, user_id):
     current_question_index = 0
     await update_user_state(user_id, STATE_QUIZ)
     #await state_changed(user_id, message)

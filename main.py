@@ -5,7 +5,7 @@ import logging
 from aiogram import Bot, Dispatcher
 
 from db_interactions import create_table
-from bot_handlers import text_router
+from bot_handlers import message_router, callback_router, command_router
 
 # Получение чувствительных данных (bot api) из среды
 load_dotenv()
@@ -19,7 +19,9 @@ dp = Dispatcher()
 
 
 # Подключаем роутер сообщений в диспетчер
-dp.include_router(text_router)
+dp.include_router(command_router)
+dp.include_router(callback_router)
+dp.include_router(message_router)
 
 # Запуск процесса поллинга новых апдейтов
 async def main():

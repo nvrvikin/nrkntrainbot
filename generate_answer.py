@@ -1,6 +1,8 @@
 from random import randint
+from aiogram import types
 from data.constatns import CORRECT_PHRASES, WRONG_PHRASES, PRE_WRONG_PHRASE, EMOJI_CORRECT, EMOJI_WRONG
 from keyboards import generate_main_menu_keyboard
+
 
 def generate_correct_answer(correct_answer):
     rand_answer = randint(0, len(CORRECT_PHRASES) - 1)
@@ -22,6 +24,6 @@ def generate_results_list(results):
         response += f'{ digit } - { EMOJI_CORRECT if r[2] > 0 else EMOJI_WRONG }\n'
     return response
 
-async def show_main_menu(message):
+async def show_main_menu(message: types.Message, nickname: str):
     kb = generate_main_menu_keyboard()
-    await message.answer(f"<b>На ваш выбор:</b>", parse_mode="HTML", reply_markup=kb)
+    await message.answer(f"<b>{ nickname }</b>, На ваш выбор:", parse_mode="HTML", reply_markup=kb)
