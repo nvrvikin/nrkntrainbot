@@ -3,18 +3,19 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 
 from bot_handlers.common_functions import check_nickname, main_menu_state
-from data.callbacks import CB_CANCEL, CB_CORRECT_ANSWER, CB_START_QUIZ, CB_WRONG_ANSWER
-from db_interactions import get_quiz_index, get_resluts, get_user_nickname, update_quiz_index, update_quiz_results
-from generate_answer import generate_correct_answer, generate_wrong_answer, show_main_menu
+from data.callbacks import CB_CANCEL, CB_CORRECT_ANSWER, CB_RESULTS_MENU, CB_RESULTS_TOP, CB_START_QUIZ, CB_WRONG_ANSWER
+from db_interactions import get_quiz_index, get_resluts, get_top_results, get_user_nickname, update_quiz_index, update_quiz_results
+from generate_answer import generate_correct_answer, generate_wrong_answer
 
 from data.questions import quiz_data
-from keyboards import generate_change_nickname_keyboard
+from keyboards import generate_change_nickname_keyboard, generate_results_menu_keyboard, generate_results_top_keyboard
 from utils.utils import get_question, new_quiz
 
 from state.state import UserForm
 
 router = Router()
 
+# STATE TRANSITIONS
 async def change_nickname_state(message: types.Message, user_id: int, state: FSMContext):
     await state.set_state(UserForm.change_nickname)
     current_nickname = await get_user_nickname(user_id)
@@ -26,15 +27,34 @@ async def quiz_state(message: types.Message, user_id: int, state: FSMContext):
     await message.answer(f"Начинаем квиз!")
     await new_quiz(message, user_id)
 
-async def handle_quiz_answer(callback: types.CallbackQuery, state: FSMContext, is_corrent: bool):
+async def resluts_menu_state(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UserForm.results_menu)
+    kb = generate_results_menu_keyboard()
     user_id = callback.from_user.id
-    
+    message = await get_resluts(user_id)
+    nickname = await get_user_nickname(user_id)
+    await callback.message.answer(f'<b>Меню результатов</b>\n{ nickname }{ message }', reply_markup=kb, parse_mode='HTML')
+
+async def resluts_top_state(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(UserForm.results_top)
+    kb = generate_results_top_keyboard()
+    message = await get_top_results()
+    await callback.message.answer(f'<b>Топ результатов</b>{ message }', reply_markup=kb, parse_mode='HTML')
+
+async def clear_markup(callback: types.CallbackQuery):
     await callback.bot.edit_message_reply_markup(
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id,
         reply_markup=None
     )
 
+async def handle_quiz_answer(callback: types.CallbackQuery, state: FSMContext, is_corrent: bool):
+    user_id = callback.from_user.id
+    
+    # Очистка клавиатуры
+    await clear_markup(callback)
+
+    # Проверка наличия никнейма
     if not await check_nickname(message=callback.message, user_id=user_id, state=state):
         return
 
@@ -62,12 +82,15 @@ async def handle_quiz_answer(callback: types.CallbackQuery, state: FSMContext, i
         results = await get_resluts(callback.from_user.id)
         await end_quiz(callback, state, results)
 
+
+
 async def end_quiz(callback: types.CallbackQuery, state: FSMContext, results: str):
     await callback.message.answer(f"Это был последний вопрос. Квиз завершен! { results }", parse_mode="HTML")
     await main_menu_state(message=callback.message, user_id=callback.from_user.id, state=state)
 
 async def cancel(callback: types.CallbackQuery, state: FSMContext):
     await main_menu_state(message=callback.message, user_id=callback.from_user.id, state=state)
+
 
 # ON CANCEL CALLBACK IN ALLOWED STATES
 @router.callback_query(StateFilter(
@@ -79,26 +102,19 @@ async def cancel(callback: types.CallbackQuery, state: FSMContext):
     F.data == CB_CANCEL
 )
 async def allowed_cancel(callback: types.CallbackQuery, state: FSMContext):
+    await clear_markup(callback)
     await cancel(callback, state)
 
 # ON CANCEL CALLBACK IN OTHER STATES
 @router.callback_query(F.data == CB_CANCEL)
 async def other_states_cancel(callback: types.CallbackQuery):
-    await callback.bot.edit_message_reply_markup(
-        chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
-        reply_markup=None
-    )
+    await clear_markup(callback)
     await callback.answer('Отмена не поддерживается в текущем состоянии диалога', show_alert=True)
 
 # ОБРАБОТКА CB_START_QUIZ
 @router.callback_query(UserForm.main_menu, F.data == CB_START_QUIZ)
 async def cmd_quiz(callback: types.CallbackQuery, state: FSMContext):
-    await callback.bot.edit_message_reply_markup(
-        chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
-        reply_markup=None
-    )
+    await clear_markup(callback)
 
     user_id = callback.from_user.id
     has_nickname = await check_nickname(message=callback.message, user_id=user_id, state=state)
@@ -117,7 +133,16 @@ async def right_answer(callback: types.CallbackQuery, state: FSMContext):
 async def wrong_answer(callback: types.CallbackQuery, state: FSMContext):
     await handle_quiz_answer(callback, state, is_corrent=False)
 
-@router.message()
-async def handle_all_text_messages(message: types.Message):
-    await message.answer("Не понял ваше сообщение")
+# Кнопка меню результатов
+@router.callback_query(StateFilter(UserForm.main_menu, UserForm.results_top), F.data == CB_RESULTS_MENU)
+async def results_menu(callback: types.CallbackQuery, state: FSMContext):
+    await clear_markup(callback)
+    await resluts_menu_state(callback, state)
 
+# Кнопка топа результатов
+@router.callback_query(UserForm.results_menu, F.data == CB_RESULTS_TOP)
+async def results_menu(callback: types.CallbackQuery, state: FSMContext):
+    await clear_markup(callback)
+    await resluts_top_state(callback, state)
+
+    

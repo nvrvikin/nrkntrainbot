@@ -24,6 +24,11 @@ async def process_nickname(message: types.Message, state: FSMContext):
     await main_menu_state(message=message, user_id=message.from_user.id, state=state)
 
 # ON MESSAGE IN [no_nickname] OR [change_nickname] STATES
-@router.message(StateFilter(UserForm.no_nickname, UserForm.change_nickname) )
+@router.message(StateFilter(UserForm.no_nickname, UserForm.change_nickname))
 async def no_nickname_message(message: types.Message, state: FSMContext):
     await process_nickname(message, state)
+
+# ON MESSAGES IN ANY OTHER STATE
+@router.message()
+async def handle_all_text_messages(message: types.Message):
+    await message.answer("Не понял ваше сообщение")

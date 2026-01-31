@@ -1,7 +1,7 @@
 import aiosqlite
 
 from data.constatns import DB_NAME
-from generate_answer import generate_results_list
+from generate_answer import generate_results_list, generate_top_results_list
 
 # Инициализация таблиц
 async def create_table():
@@ -48,6 +48,18 @@ async def get_resluts(user_id):
             else:
                 return 0
             
+# Запрос и форматирование результатов пользователя
+async def get_top_results():
+    async with aiosqlite.connect(DB_NAME) as db:
+        # Получаем запись для заданного пользователя
+        async with db.execute('SELECT * FROM quiz_results') as cursor:
+            # Возвращаем результат
+            results = await cursor.fetchall()
+            if results is not None:
+                return await generate_top_results_list(results, get_user_nickname)
+            else:
+                return 0
+            
 # Получение состояния пользователя
 async def get_user_state(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
@@ -79,3 +91,4 @@ async def update_user_nickname(user_id, nickname):
     async with aiosqlite.connect(DB_NAME) as db:
         await db.execute('INSERT OR REPLACE INTO quiz_users (user_id, nickname) VALUES (?, ?)', (user_id, nickname))
         await db.commit()
+

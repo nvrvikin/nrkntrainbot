@@ -1,7 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram import types
 
-from data.callbacks import CB_CANCEL, CB_CORRECT_ANSWER, CB_WRONG_ANSWER, CB_START_QUIZ, CB_CHANGE_NICKNAME
+from data.callbacks import CB_CANCEL, CB_CORRECT_ANSWER, CB_RESULTS_MENU, CB_RESULTS_TOP, CB_WRONG_ANSWER, CB_START_QUIZ, CB_CHANGE_NICKNAME
 
 # Клавиатура с вариантами ответа на вопрос
 def generate_options_keyboard(answer_options, right_answer):
@@ -31,7 +31,7 @@ def generate_main_menu_keyboard():
 
     builder.add(types.InlineKeyboardButton(
         text='Посмотреть результаты',
-        callback_data=CB_CHANGE_NICKNAME
+        callback_data=CB_RESULTS_MENU
     ))
 
     builder.adjust(1)
@@ -45,5 +45,39 @@ def generate_change_nickname_keyboard():
         text='Отмена',
         callback_data=CB_CANCEL
     ))
+
+    return builder.as_markup()
+
+def generate_results_menu_keyboard():
+    builder = InlineKeyboardBuilder()
+
+    builder.add(types.InlineKeyboardButton(
+        text='Топ результатов',
+        callback_data=CB_RESULTS_TOP
+    ))
+
+    builder.add(types.InlineKeyboardButton(
+        text='Назад',
+        callback_data=CB_CANCEL
+    ))
+
+    builder.adjust(1)
+
+    return builder.as_markup()
+
+def generate_results_top_keyboard():
+    builder = InlineKeyboardBuilder()
+
+    builder.add(types.InlineKeyboardButton(
+        text='Мои результаты',
+        callback_data=CB_RESULTS_MENU
+    ))
+
+    builder.add(types.InlineKeyboardButton(
+        text='Главное меню',
+        callback_data=CB_CANCEL
+    ))
+
+    builder.adjust(1)
 
     return builder.as_markup()

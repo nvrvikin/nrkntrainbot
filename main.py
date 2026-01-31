@@ -18,11 +18,11 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 # Подключаем роутер сообщений в диспетчер
-dp.include_routers([
+dp.include_routers(
     command_router,
     callback_router,
-    message_router,
-])
+    message_router
+)
 
 # Запуск процесса поллинга новых апдейтов
 async def main():
