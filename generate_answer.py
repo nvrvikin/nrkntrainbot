@@ -1,6 +1,6 @@
 from random import randint
 from aiogram import types
-from data.constatns import CORRECT_PHRASES, WRONG_PHRASES, PRE_WRONG_PHRASE, EMOJI_CORRECT, EMOJI_WRONG
+from bot_data.constatns import CORRECT_PHRASES, WRONG_PHRASES, PRE_WRONG_PHRASE, EMOJI_CORRECT, EMOJI_WRONG
 from keyboards import generate_main_menu_keyboard
 
 

@@ -1,6 +1,6 @@
 from db_interactions import get_quiz_index, update_quiz_index
 from keyboards import generate_options_keyboard
-from data.questions import quiz_data
+from bot_data.questions import quiz_data
 
 # Начало квиза
 async def new_quiz(message, user_id):

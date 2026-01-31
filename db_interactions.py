@@ -1,6 +1,6 @@
 import aiosqlite
 
-from data.constatns import DB_NAME
+from bot_data.constatns import DB_NAME
 from generate_answer import generate_results_list, generate_top_results_list
 
 # Инициализация таблиц

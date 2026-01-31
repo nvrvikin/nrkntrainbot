@@ -3,11 +3,11 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 
 from bot_handlers.common_functions import check_nickname, main_menu_state
-from data.callbacks import CB_CANCEL, CB_CORRECT_ANSWER, CB_RESULTS_MENU, CB_RESULTS_TOP, CB_START_QUIZ, CB_WRONG_ANSWER
+from bot_data.callbacks import CB_CANCEL, CB_CORRECT_ANSWER, CB_RESULTS_MENU, CB_RESULTS_TOP, CB_START_QUIZ, CB_WRONG_ANSWER
 from db_interactions import get_quiz_index, get_resluts, get_top_results, get_user_nickname, update_quiz_index, update_quiz_results
 from generate_answer import generate_correct_answer, generate_wrong_answer
 
-from data.questions import quiz_data
+from bot_data.questions import quiz_data
 from keyboards import generate_change_nickname_keyboard, generate_results_menu_keyboard, generate_results_top_keyboard
 from utils.utils import get_question, new_quiz
 
