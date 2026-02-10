@@ -39,12 +39,20 @@ async def resluts_top_state(callback: types.CallbackQuery, state: FSMContext):
     await state.set_state(UserForm.results_top)
     kb = generate_results_top_keyboard()
     message = await get_top_results()
-    await callback.message.answer(f'<b>Топ результатов</b>{ message }', reply_markup=kb, parse_mode='HTML')
+    await callback.message.answer(f'{ message }', reply_markup=kb, parse_mode='HTML')
 
 async def clear_markup(callback: types.CallbackQuery):
     await callback.bot.edit_message_reply_markup(
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id,
+        reply_markup=None
+    )
+
+async def change_question_text(callback: types.CallbackQuery):
+    await callback.bot.edit_message_text(
+        chat_id=callback.from_user.id,
+        message_id=callback.message.message_id,
+        text=f'{callback.message.text}\n\nОтвет:', 
         reply_markup=None
     )
 

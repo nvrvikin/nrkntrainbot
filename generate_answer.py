@@ -1,6 +1,6 @@
 from random import randint
 from aiogram import types
-from bot_data.constatns import CORRECT_PHRASES, WRONG_PHRASES, PRE_WRONG_PHRASE, EMOJI_CORRECT, EMOJI_WRONG
+from bot_data.constatns import CORRECT_PHRASES, UNHANDLED_MESSAGES_PHRASES, WRONG_PHRASES, PRE_WRONG_PHRASE, EMOJI_CORRECT, EMOJI_WRONG
 from keyboards import generate_main_menu_keyboard
 
 
@@ -11,6 +11,14 @@ def generate_correct_answer(correct_answer):
 def generate_wrong_answer(correct_answer):
     rand_answer = randint(0, len(WRONG_PHRASES) - 1)
     return f"{ EMOJI_WRONG } <i>{ WRONG_PHRASES[rand_answer] }</i>\n{ PRE_WRONG_PHRASE } <u>{ correct_answer }</u>"
+
+def generate_unhandled_message_answer():
+    '''
+    Returns a random answer string for cases of unhandled iser messages
+    '''
+    rand_answer = randint(0, len(UNHANDLED_MESSAGES_PHRASES) - 1)
+    return f'{ UNHANDLED_MESSAGES_PHRASES[rand_answer] }'
+    
 
 def generate_results_list(results):
     if not len(results):
@@ -44,9 +52,9 @@ async def generate_top_results_list(results, get_user_nickname):
     for u in sorted_users:
         nickname = await get_user_nickname(u[0])
         if nickname:
-            results_list += f'<i>{ nickname }</i>: {u[1]}\n'
+            results_list += f'<i>{ nickname }</i>: { u[1] }\n'
 
-    response = '\n\n<b>Топ результатов:</b>\n\n'
+    response = '<b>Топ результатов:</b>\n\n'
     return f'{response}{results_list}'
 
 async def show_main_menu(message: types.Message, nickname: str):

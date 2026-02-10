@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from bot_handlers.common_functions import check_nickname, main_menu_state
 from bot_data.phrases import PHRASE_GREET
 
+# Init command router
 router = Router()
 
 # ОБРАБОТКА /start

@@ -1,17 +1,29 @@
-from aiogram import F, Router, types
+from aiogram import Router, types
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 
 from bot_handlers.common_functions import main_menu_state
 from db_interactions import update_user_nickname
+from generate_answer import generate_unhandled_message_answer
 from state.state import UserForm
 
+# Init text message router
 router = Router()
 
 async def process_nickname(message: types.Message, state: FSMContext):
+    """
+    Checks if a message meets the requirements of a nickname and then
+    updates user one in the db and changes the state to [main_menu]
+    
+    :param message: User message object, that conatins message text
+    :type message: types.Message
+    :param state: Aiogram bot current state of a user chat
+    :type state: FSMContext
+    """
+
     username = message.text.strip()
     
-    # Валидация
+    # Validate with max and min string length
     if len(username) > 20:
         await message.answer("Слишком длинный ник! Максимум 20 символов.")
         return
@@ -31,4 +43,4 @@ async def no_nickname_message(message: types.Message, state: FSMContext):
 # ON MESSAGES IN ANY OTHER STATE
 @router.message()
 async def handle_all_text_messages(message: types.Message):
-    await message.answer("Не понял ваше сообщение")
+    await message.answer(generate_unhandled_message_answer())
