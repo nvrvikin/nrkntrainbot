@@ -15,4 +15,4 @@ aiogram library, SQLite database, free hosting on Bothost.ru
 
 
 ## Functionality showcase
-You can access the bot by the following username: [@nrkntainbot](https://t.me/nrkntainbot)
+You can access the bot by the following username: [@nrknquizbot](https://t.me/nrknquizbot)
