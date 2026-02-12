@@ -56,9 +56,9 @@ async def change_question_text(callback: types.CallbackQuery):
         reply_markup=None
     )
 
-async def handle_quiz_answer(callback: types.CallbackQuery, state: FSMContext, is_corrent: bool):
+async def handle_quiz_answer(callback: types.CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
-    
+        
     # Очистка клавиатуры
     await clear_markup(callback)
 
@@ -67,29 +67,32 @@ async def handle_quiz_answer(callback: types.CallbackQuery, state: FSMContext, i
         return
 
     result_answer = ''
-    current_question_index = await get_quiz_index(callback.from_user.id)
-    correct_option = quiz_data[current_question_index]['correct_option']
+
+    current_question_index = await get_quiz_index(user_id)
+    question = quiz_data[current_question_index]
+    user_answer_index = int(callback.data)
+    is_corrent = user_answer_index == question['correct_option']
+    print(f'callback.data: { callback.data }, user_answer_index: { user_answer_index }, is_correct: { is_corrent }')
 
     if is_corrent:
-        result_answer = generate_correct_answer(quiz_data[current_question_index]['options'][correct_option])
+        result_answer = generate_correct_answer(question['options'][user_answer_index])
         # 1 для верных
-        await update_quiz_results(callback.from_user.id, current_question_index, 1)
+        await update_quiz_results(user_id, current_question_index, 1)
     else:
-        result_answer = generate_wrong_answer(quiz_data[current_question_index]['options'][correct_option])
+        result_answer = generate_wrong_answer(question['options'][user_answer_index])
         # 0 для неверных
-        await update_quiz_results(callback.from_user.id, current_question_index, 0)
+        await update_quiz_results(user_id, current_question_index, 0)
 
     await callback.message.answer(result_answer, parse_mode="HTML")
 
     current_question_index += 1
-    await update_quiz_index(callback.from_user.id, current_question_index)
+    await update_quiz_index(user_id, current_question_index)
 
     if current_question_index < len(quiz_data):
-        await get_question(callback.message, callback.from_user.id)
+        await get_question(callback.message, user_id)
     else:
-        results = await get_resluts(callback.from_user.id)
+        results = await get_resluts(user_id)
         await end_quiz(callback, state, results)
-
 
 
 async def end_quiz(callback: types.CallbackQuery, state: FSMContext, results: str):
@@ -131,15 +134,10 @@ async def cmd_quiz(callback: types.CallbackQuery, state: FSMContext):
     
     await quiz_state(message=callback.message, user_id=user_id, state=state)
 
-# ОБРАБОТКА ВЕРНОГО ОТВЕТА
-@router.callback_query(UserForm.quiz, F.data == CB_CORRECT_ANSWER)
-async def right_answer(callback: types.CallbackQuery, state: FSMContext):
-    await handle_quiz_answer(callback, state, is_corrent=True)
-
-# ОБРАБОТКА НЕВЕРНОГО ОТВЕТА
-@router.callback_query(UserForm.quiz, F.data == CB_WRONG_ANSWER)
-async def wrong_answer(callback: types.CallbackQuery, state: FSMContext):
-    await handle_quiz_answer(callback, state, is_corrent=False)
+# ОБРАБОТКА ОТВЕТОВ НА ВОПРОСЫ КВИЗА
+@router.callback_query(UserForm.quiz, F.data.in_(['0', '1', '2', '3', '4']))
+async def quiz_answer(callback: types.CallbackQuery, state: FSMContext):
+    await handle_quiz_answer(callback, state)
 
 # Кнопка меню результатов
 @router.callback_query(StateFilter(UserForm.main_menu, UserForm.results_top), F.data == CB_RESULTS_MENU)

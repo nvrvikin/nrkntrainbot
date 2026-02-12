@@ -4,13 +4,13 @@ from bot_data.constatns import CORRECT_PHRASES, UNHANDLED_MESSAGES_PHRASES, WRON
 from keyboards import generate_main_menu_keyboard
 
 
-def generate_correct_answer(correct_answer):
+def generate_correct_answer(user_answer):
     rand_answer = randint(0, len(CORRECT_PHRASES) - 1)
-    return f"{ EMOJI_CORRECT } <i>{ CORRECT_PHRASES[rand_answer] }</i>\n<u>{ correct_answer }</u>"
+    return f"{ EMOJI_CORRECT } <i>{ CORRECT_PHRASES[rand_answer] }</i>\n<u>{ user_answer }</u>"
 
-def generate_wrong_answer(correct_answer):
+def generate_wrong_answer(user_answer):
     rand_answer = randint(0, len(WRONG_PHRASES) - 1)
-    return f"{ EMOJI_WRONG } <i>{ WRONG_PHRASES[rand_answer] }</i>\n{ PRE_WRONG_PHRASE } <u>{ correct_answer }</u>"
+    return f"{ EMOJI_WRONG } <i>{ WRONG_PHRASES[rand_answer] }</i>\n{ PRE_WRONG_PHRASE } <u>{ user_answer }</u>"
 
 def generate_unhandled_message_answer():
     '''
@@ -21,6 +21,12 @@ def generate_unhandled_message_answer():
     
 
 def generate_results_list(results):
+    '''
+    Returns a list 
+    
+    :param results: An array of tuples of the following format: (user_id: int, question_index: int, answer_index: int).
+    They are rows of quiz_results table.
+    '''
     if not len(results):
         return 'Нет результатов, пройдите тест ещё раз.'
     response = '\n\n<b>Твой результат:</b>\n'

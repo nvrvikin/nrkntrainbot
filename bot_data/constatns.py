@@ -20,7 +20,7 @@ CORRECT_PHRASES = [
     'Есть контакт!',
 ]
 
-PRE_WRONG_PHRASE = 'Правильный ответ:'
+PRE_WRONG_PHRASE = 'Ваш ответ:'
 
 WRONG_PHRASES = [
     'Отказано.',
